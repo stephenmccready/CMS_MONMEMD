@@ -1,0 +1,126 @@
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+
+Create procedure [dbo].[ImportMONMEMD] @filename As varChar(128), @ImportDate As DateTime
+As
+
+-- Testing:
+-- Exec [ImportMONMEMD] 'X:\Finance\MONMEMD\P.FH9122.MONMEMD.D150301','2015-03-03'
+
+Begin
+
+If OBJECT_ID('[dbo].[tbl_MONMEMD_In]') Is Not Null
+	Drop Table [dbo].[tbl_MONMEMD_In]
+
+Create Table [dbo].[tbl_MONMEMD_In] (col001 varchar(max))
+
+Declare @BulkCmd As nvarChar(4000)
+Set		@BulkCmd = "BULK INSERT tbl_MONMEMD_In FROM '"+@filename+"' WITH (FIELDTERMINATOR = '\n')"
+
+Exec	(@BulkCmd)
+
+Insert	Into [dbo].[tbl_MONMEMD]
+Select	SubString(col001,1,5) As [MCO Contract Number]
+,		SubString(col001,6,8) As [Run Date of the File]
+,		SubString(col001,14,6) As [Payment Date]
+,		SubString(col001,20,12) As [HIC Number]
+,		SubString(col001,32,7) As [Surname]
+,		SubString(col001,39,1) As [First Initial]
+,		SubString(col001,40,1) As [Sex]
+,		SubString(col001,41,8) As [Date of Birth]
+,		SubString(col001,49,4) As [Age Group]
+,		SubString(col001,53,5) As [State & County Code]
+,		SubString(col001,58,1) As [Out of Area Indicator]
+,		SubString(col001,59,1) As [Part A Entitlement]
+,		SubString(col001,60,1) As [Part B Entitlement]
+,		SubString(col001,61,1) As [Hospice]
+,		SubString(col001,62,1) As [ESRD]
+,		SubString(col001,63,1) As [Aged/Disabled MSP]
+,		SubString(col001,64,1) As [Institutional]
+,		SubString(col001,65,1) As [NHC]
+,		SubString(col001,66,1) As [New Medicare Beneficiary Medicaid Status Flag]
+,		SubString(col001,67,1) As [LIT Flag]
+,		SubString(col001,68,1) As [Medicaid Indicator]
+,		SubString(col001,69,2) As [PIP-DCG]
+,		SubString(col001,71,1) As [Default Risk Factor Code]
+,		SubString(col001,72,7) As [Risk Adjuster Factor A]
+,		SubString(col001,79,7) As [Risk Adjuster Factor B]
+,		SubString(col001,86,2) As [Number of Paymt/Adjustmt Months Part A]
+,		SubString(col001,88,2) As [Number of Paymt/Adjustmt Months Part B]
+,		SubString(col001,90,2) As [Adjustment Reason Code]
+,		SubString(col001,92,8) As [Paymt/Adjustment/MSA Start Date]
+,		SubString(col001,100,8) As [Paymt/Adjustment/MSA End Date]
+,		SubString(col001,108,9) As [Demographic Paymt/Adjustmt Amount A]
+,		SubString(col001,117,9) As [Demographic Paymt/Adjustmt Amount B]
+,		SubString(col001,126,9) As [Monthly Paymt/Adjustmt Amount A]
+,		SubString(col001,135,9) As [Monthly Paymt/Adjustmt Amount B]
+,		SubString(col001,144,8) As [LIS Premium Subsidy]
+,		SubString(col001,152,1) As [ESRD MSP Flag]
+,		SubString(col001,153,8) As [MSA Part A Deposit/Recovery Amount]
+,		SubString(col001,161,8) As [MSA Part B Deposit/Recovery Amount]
+,		SubString(col001,169,2) As [MSA Deposit/Recovery Months]
+,		SubString(col001,171,1) As [Current Medicaid Status]
+,		SubString(col001,172,4) As [Risk Adjuster Age Group (RAAG)]
+,		SubString(col001,176,7) As [Previous Disable Ratio (PRDIB)]
+,		SubString(col001,183,1) As [De Minimis]
+,		SubString(col001,184,1) As [Beneficiary Dual and Part D Enrollment Status Flag]
+,		SubString(col001,185,3) As [Plan Benefit Package Id]
+,		SubString(col001,188,1) As [Race Code]
+,		SubString(col001,189,2) As [RA Factor Type Code]
+,		SubString(col001,191,1) As [Frailty Indicator]
+,		SubString(col001,192,1) As [Original Reason for Entitlement Code (OREC)]
+,		SubString(col001,193,1) As [Lag Indicator]
+,		SubString(col001,194,3) As [Segment ID]
+,		SubString(col001,197,1) As [Enrollment Source]
+,		SubString(col001,198,1) As [EGHP Flag]
+,		SubString(col001,199,8) As [Part C Basic Premium – Part A Amount]
+,		SubString(col001,207,8) As [Part C Basic Premium – Part B Amount]
+,		SubString(col001,215,8) As [Rebate for Part A Cost Sharing Reduction]
+,		SubString(col001,223,8) As [Rebate for Part B Cost Sharing Reduction]
+,		SubString(col001,231,8) As [Rebate for Other Part A Mandatory Supplemental Benefits]
+,		SubString(col001,239,8) As [Rebate for Other Part B Mandatory Supplemental Benefits]
+,		SubString(col001,247,8) As [Rebate for Part B Premium Reduction – Part A Amount]
+,		SubString(col001,255,8) As [Rebate for Part B Premium Reduction – Part B Amount]
+,		SubString(col001,263,8) As [Rebate for Part D Supplemental Benefits – Part A Amount]
+,		SubString(col001,271,8) As [Rebate for Part D Supplemental Benefits – Part B Amount]
+,		SubString(col001,279,10) As [Total Part A MA Payment]
+,		SubString(col001,289,10) As [Total Part B MA Payment]
+,		SubString(col001,299,11) As [Total MA Payment Amount]
+,		SubString(col001,310,7) As [Part D RA Factor]
+,		SubString(col001,317,1) As [Part D Low-Income Indicator]
+,		SubString(col001,318,7) As [Part D Low-Income Multiplier]
+,		SubString(col001,325,1) As [Part D Long-Term Institutional Indicator]
+,		SubString(col001,326,7) As [Part D Long-Term Institutional Multiplier]
+,		SubString(col001,333,8) As [Rebate for Part D Basic Premium Reduction]
+,		SubString(col001,341,8) As [Part D Basic Premium Amount]
+,		SubString(col001,349,10) As [Part D Direct Subsidy Monthly Payment Amount]
+,		SubString(col001,359,10) As [Reinsurance Subsidy Amount]
+,		SubString(col001,369,10) As [Low-Income Subsidy Cost-Sharing Amount]
+,		SubString(col001,379,11) As [Total Part D Payment]
+,		SubString(col001,390,2) As [Number of Paymt/Adjustmt Months Part D]
+,		SubString(col001,392,10) As [PACE Premium Add On]
+,		SubString(col001,402,10) As [PACE Cost Sharing Add-on]
+,		SubString(col001,412,7) As [Part C Frailty Score Factor]
+,		SubString(col001,419,7) As [MSP Factor]
+,		SubString(col001,426,10) As [MSP Reduction/Reduction Adjustment Amount – Part A]
+,		SubString(col001,436,10) As [MSP Reduction/Reduction Adjustment Amount – Part B]
+,		SubString(col001,446,2) As [Medicaid Dual Status Code]
+,		SubString(col001,448,8) As [Part D Coverage Gap Discount Amount]
+,		SubString(col001,456,2) As [Part D RA Factor Type]
+,		SubString(col001,458,1) As [Default Part D Risk Factor Code]
+,		SubString(col001,459,9) As [Part A Risk Adjusted Monthly Rate Amount for Pymt/Adj]
+,		SubString(col001,468,9) As [Part B Risk Adjusted Monthly Rate Amount for Pymt/Adj]
+,		SubString(col001,477,9) As [Part D Direct Subsidy Monthly Rate Amount for Pymt/Adj]
+,		SubString(col001,486,10) As [Cleanup ID]
+,		SubString(col001,496,50) As [Filler]
+,		@ImportDate As dateImported
+,	    @filename As [FileName]
+From	[dbo].[tbl_MONMEMD_In]
+Where	SubString(col001,32,17) <> ''
+
+If OBJECT_ID('[dbo].[tbl_MONMEMD_In]') Is Not Null
+	Drop Table [dbo].[tbl_MONMEMD_In]
+	
+End
