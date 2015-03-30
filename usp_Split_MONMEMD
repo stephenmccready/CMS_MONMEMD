@@ -1,0 +1,213 @@
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+
+Create procedure [dbo].[usp_Split_MONMEMD]
+As
+
+Begin
+
+Select M.[MCO Contract Number]
+      ,M.[Run Date of the File]
+      ,M.[Payment Date]
+      ,M.[HIC Number]
+      ,M.[Surname]
+      ,M.[First Initial]
+      ,M.[Sex]
+      ,M.[Date of Birth]
+      ,M.[Age Group]
+      ,M.[State & County Code]
+      ,M.[Out of Area Indicator]
+      ,M.[Part A Entitlement]
+      ,M.[Part B Entitlement]
+      ,M.[Hospice]
+      ,M.[ESRD]
+      ,M.[Aged/Disabled MSP]
+      ,M.[Institutional]
+      ,M.[NHC]
+      ,M.[New Medicare Beneficiary Medicaid Status Flag]
+      ,M.[LIT Flag]
+      ,M.[Medicaid Indicator]
+      ,M.[PIP-DCG]
+      ,M.[Default Risk Factor Code]
+      ,M.[Risk Adjuster Factor A]
+      ,M.[Risk Adjuster Factor B]
+      ,M.[Number of Paymt/Adjustmt Months Part A]
+      ,M.[Number of Paymt/Adjustmt Months Part B]
+      ,M.[Adjustment Reason Code]
+      ,M.[Paymt/Adjustment/MSA Start Date]
+      ,M.[Paymt/Adjustment/MSA End Date]
+      
+      ,SubString(YM.YYYYMMDD,1,6) As SPLIT_YYYYMM
+      
+      ,M.[Demographic Paymt/Adjustmt Amount A] As [ORIGINAL Demographic Paymt/Adjustmt Amount A]
+      , Case When M.[Number of Paymt/Adjustmt Months Part A]='00' Then  CAST(M.[Demographic Paymt/Adjustmt Amount A] As Money)
+		Else CAST(M.[Demographic Paymt/Adjustmt Amount A] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part A] As Int) 
+      	End As [Demographic Paymt/Adjustmt Amount A]
+      ,M.[Demographic Paymt/Adjustmt Amount B] As [ORIGINAL Demographic Paymt/Adjustmt Amount B]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then  CAST(M.[Demographic Paymt/Adjustmt Amount B] As Money)
+		Else CAST(M.[Demographic Paymt/Adjustmt Amount B] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Demographic Paymt/Adjustmt Amount B]
+      ,M.[Monthly Paymt/Adjustmt Amount A] As [ORIGINAL Monthly Paymt/Adjustmt Amount A]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Monthly Paymt/Adjustmt Amount A] As Money)
+		Else CAST(M.[Monthly Paymt/Adjustmt Amount A] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Monthly Paymt/Adjustmt Amount A]
+      ,M.[Monthly Paymt/Adjustmt Amount B] As [ORIGINAL Monthly Paymt/Adjustmt Amount B]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Monthly Paymt/Adjustmt Amount B] As Money)
+		Else CAST(M.[Monthly Paymt/Adjustmt Amount B] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Monthly Paymt/Adjustmt Amount B]
+      ,M.[LIS Premium Subsidy] As [ORIGINAL LIS Premium Subsidy]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[LIS Premium Subsidy] As Money)
+		Else CAST(M.[LIS Premium Subsidy] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [LIS Premium Subsidy]
+      	
+      ,M.[ESRD MSP Flag]
+      ,M.[MSA Part A Deposit/Recovery Amount]
+      ,M.[MSA Part B Deposit/Recovery Amount]
+      ,M.[MSA Deposit/Recovery Months]
+      ,M.[Current Medicaid Status]
+      ,M.[Risk Adjuster Age Group (RAAG)]
+      ,M.[Previous Disable Ratio (PRDIB)]
+      ,M.[De Minimis]
+      ,M.[Beneficiary Dual and Part D Enrollment Status Flag]
+      ,M.[Plan Benefit Package Id]
+      ,M.[Race Code]
+      ,M.[RA Factor Type Code]
+      ,M.[Frailty Indicator]
+      ,M.[Original Reason for Entitlement Code (OREC)]
+      ,M.[Lag Indicator]
+      ,M.[Segment ID]
+      ,M.[Enrollment Source]
+      ,M.[EGHP Flag]
+      
+      ,M.[Part C Basic Premium – Part A Amount] As [ORIGINAL Part C Basic Premium – Part A Amount]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Part C Basic Premium – Part A Amount] As Money)
+		Else CAST(M.[Part C Basic Premium – Part A Amount] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Part C Basic Premium – Part A Amount]
+      ,M.[Part C Basic Premium – Part B Amount] As [ORIGINAL Part C Basic Premium – Part B Amount]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Part C Basic Premium – Part B Amount] As Money)
+		Else CAST(M.[Part C Basic Premium – Part B Amount] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Part C Basic Premium – Part B Amount]
+      ,M.[Rebate for Part A Cost Sharing Reduction] As [Rebate for Part A Cost Sharing Reduction]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Rebate for Part A Cost Sharing Reduction] As Money)
+		Else CAST(M.[Rebate for Part A Cost Sharing Reduction] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Rebate for Part A Cost Sharing Reduction]
+      ,M.[Rebate for Part B Cost Sharing Reduction] As [ORIGINAL Rebate for Part B Cost Sharing Reduction]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Rebate for Part B Cost Sharing Reduction] As Money)
+		Else CAST(M.[Rebate for Part B Cost Sharing Reduction] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Rebate for Part B Cost Sharing Reduction]
+      ,M.[Rebate for Other Part A Mandatory Supplemental Benefits] As [ORIGINAL Rebate for Other Part A Mandatory Supplemental Benefits]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Rebate for Other Part A Mandatory Supplemental Benefits] As Money)
+		Else CAST(M.[Rebate for Other Part A Mandatory Supplemental Benefits] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Rebate for Other Part A Mandatory Supplemental Benefits]
+      ,M.[Rebate for Other Part B Mandatory Supplemental Benefits] As [ORIGINAL Rebate for Other Part B Mandatory Supplemental Benefits]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Rebate for Other Part B Mandatory Supplemental Benefits] As Money)
+		Else CAST(M.[Rebate for Other Part B Mandatory Supplemental Benefits] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Rebate for Other Part B Mandatory Supplemental Benefits]
+      ,M.[Rebate for Part B Premium Reduction – Part A Amount] As [ORIGINAL Rebate for Part B Premium Reduction – Part A Amount]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Rebate for Part B Premium Reduction – Part A Amount] As Money)
+		Else CAST(M.[Rebate for Part B Premium Reduction – Part A Amount] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Rebate for Part B Premium Reduction – Part A Amount]
+      ,M.[Rebate for Part B Premium Reduction – Part B Amount] As [ORIGINAL Rebate for Part B Premium Reduction – Part B Amount]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Rebate for Part B Premium Reduction – Part B Amount] As Money)
+		Else CAST(M.[Rebate for Part B Premium Reduction – Part B Amount] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Rebate for Part B Premium Reduction – Part B Amount]
+      ,M.[Rebate for Part D Supplemental Benefits – Part A Amount] As [ORIGINAL Rebate for Part D Supplemental Benefits – Part A Amount]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Rebate for Part D Supplemental Benefits – Part A Amount] As Money)
+		Else CAST(M.[Rebate for Part D Supplemental Benefits – Part A Amount] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Rebate for Part D Supplemental Benefits – Part A Amount]
+      ,M.[Rebate for Part D Supplemental Benefits – Part B Amount] As [ORIGINAL Rebate for Part D Supplemental Benefits – Part B Amount]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Rebate for Part D Supplemental Benefits – Part B Amount] As Money)
+		Else CAST(M.[Rebate for Part D Supplemental Benefits – Part B Amount] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Rebate for Part D Supplemental Benefits – Part B Amount]
+      ,M.[Total Part A MA Payment] As [ORIGINAL Total Part A MA Payment]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Total Part A MA Payment] As Money)
+		Else CAST(M.[Total Part A MA Payment] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Total Part A MA Payment]
+      ,M.[Total Part B MA Payment] As [ORIGINAL Total Part B MA Payment]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Total Part B MA Payment] As Money)
+		Else CAST(M.[Total Part B MA Payment] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Total Part B MA Payment]
+      ,M.[Total MA Payment Amount] As [ORIGINAL Total MA Payment Amount]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST([Total MA Payment Amount] As Money)
+		Else CAST(M.[Total MA Payment Amount] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Total MA Payment AmountTotal MA Payment Amount]
+      
+      ,M.[Part D RA Factor]
+      ,M.[Part D Low-Income Indicator]
+      ,M.[Part D Low-Income Multiplier]
+      ,M.[Part D Long-Term Institutional Indicator]
+      ,M.[Part D Long-Term Institutional Multiplier]
+      
+      ,M.[Rebate for Part D Basic Premium Reduction] As [ORIGINAL Rebate for Part D Basic Premium Reduction]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Rebate for Part D Basic Premium Reduction] As Money)
+		Else CAST(M.[Rebate for Part D Basic Premium Reduction] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Rebate for Part D Basic Premium Reduction]
+      ,M.[Part D Basic Premium Amount] As [ORIGINAL Part D Basic Premium Amount]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Part D Basic Premium Amount] As Money)
+		Else CAST(M.[Part D Basic Premium Amount] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Part D Basic Premium Amount]
+      ,M.[Part D Direct Subsidy Monthly Payment Amount] As [ORIGINAL Part D Direct Subsidy Monthly Payment Amount]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Part D Direct Subsidy Monthly Payment Amount] As Money)
+		Else CAST(M.[Part D Direct Subsidy Monthly Payment Amount] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Part D Direct Subsidy Monthly Payment Amount]
+      ,M.[Reinsurance Subsidy Amount] As [ORIGINAL Reinsurance Subsidy Amount]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Reinsurance Subsidy Amount] As Money)
+		Else CAST(M.[Reinsurance Subsidy Amount] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Reinsurance Subsidy Amount]
+      ,M.[Low-Income Subsidy Cost-Sharing Amount] as [ORIGINAL Low-Income Subsidy Cost-Sharing Amount]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Low-Income Subsidy Cost-Sharing Amount] As Money)
+		Else CAST(M.[Low-Income Subsidy Cost-Sharing Amount] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Low-Income Subsidy Cost-Sharing Amount]
+      ,M.[Total Part D Payment] As [ORIGINAL Total Part D Payment]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Total Part D Payment] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part A] As Int) 
+		Else CAST(M.[Total Part D Payment] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Total Part D Payment]
+      
+      ,M.[Number of Paymt/Adjustmt Months Part D]
+      ,M.[PACE Premium Add On]
+      ,M.[PACE Cost Sharing Add-on]
+      ,M.[Part C Frailty Score Factor]
+      ,M.[MSP Factor]
+      
+      ,M.[MSP Reduction/Reduction Adjustment Amount – Part A] As [ORIGINAL MSP Reduction/Reduction Adjustment Amount – Part A]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[MSP Reduction/Reduction Adjustment Amount – Part A] As Money)
+		Else CAST(M.[MSP Reduction/Reduction Adjustment Amount – Part A] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [MSP Reduction/Reduction Adjustment Amount – Part A]
+      ,M.[MSP Reduction/Reduction Adjustment Amount – Part B] As [ORIGINAL MSP Reduction/Reduction Adjustment Amount – Part B]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[MSP Reduction/Reduction Adjustment Amount – Part B] As Money)
+		Else CAST(M.[MSP Reduction/Reduction Adjustment Amount – Part B] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [MSP Reduction/Reduction Adjustment Amount – Part B]
+ 
+      ,M.[Medicaid Dual Status Code]
+      
+      ,M.[Part D Coverage Gap Discount Amount] As [ORIGINAL Part D Coverage Gap Discount Amount]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Part D Coverage Gap Discount Amount] As Money)
+		Else CAST(M.[Part D Coverage Gap Discount Amount] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Part D Coverage Gap Discount Amount]
+
+      ,M.[Part D RA Factor Type]
+      ,M.[Default Part D Risk Factor Code]
+      
+      ,M.[Part A Risk Adjusted Monthly Rate Amount for Pymt/Adj] As [ORIGINAL Part A Risk Adjusted Monthly Rate Amount for Pymt/Adj]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Part A Risk Adjusted Monthly Rate Amount for Pymt/Adj] As Money)
+		Else CAST(M.[Part A Risk Adjusted Monthly Rate Amount for Pymt/Adj] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Part A Risk Adjusted Monthly Rate Amount for Pymt/Adj]
+      ,M.[Part B Risk Adjusted Monthly Rate Amount for Pymt/Adj] As [ORIGINAL Part B Risk Adjusted Monthly Rate Amount for Pymt/Adj]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Part B Risk Adjusted Monthly Rate Amount for Pymt/Adj] As Money)
+		Else CAST(M.[Part B Risk Adjusted Monthly Rate Amount for Pymt/Adj] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Part B Risk Adjusted Monthly Rate Amount for Pymt/Adj]
+      ,M.[Part D Direct Subsidy Monthly Rate Amount for Pymt/Adj] as [ORIGINAL Part D Direct Subsidy Monthly Rate Amount for Pymt/Adj]
+      , Case When M.[Number of Paymt/Adjustmt Months Part B]='00' Then CAST(M.[Part D Direct Subsidy Monthly Rate Amount for Pymt/Adj] As Money)
+		Else CAST(M.[Part D Direct Subsidy Monthly Rate Amount for Pymt/Adj] As Money)/CAST(M.[Number of Paymt/Adjustmt Months Part B] As Int) 
+      	End As [Part D Direct Subsidy Monthly Rate Amount for Pymt/Adj]
+      
+      ,M.[Cleanup ID]
+      ,M.[Filler]
+      ,M.[dateImported]
+From	dbo.tbl_MONMEMD As M
+Join	dbo.tbl_MONMEMD_Month As YM
+		On YM.YYYYMMDD Between M.[Paymt/Adjustment/MSA Start Date] And M.[Paymt/Adjustment/MSA End Date]
+
+End
