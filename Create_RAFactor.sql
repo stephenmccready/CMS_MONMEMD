@@ -29,3 +29,5 @@ Insert Into #RAFactor Select 'PJ', 'PACE Community Partial Dual'
 Insert Into #RAFactor Select 'PK', 'PACE Community Non-Dual'
 Insert Into #RAFactor Select 'PL', 'PACE Post Graft 1'
 Insert Into #RAFactor Select 'PM', 'PACE Post Graft 2-3'
+
+Create Index ix_RAFactorTypeCode On #RAFactor(RAFactorTypeCode)
